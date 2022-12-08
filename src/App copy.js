@@ -8,11 +8,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [randomValueOne, setRandomValueOne] = useState(Math.ceil(Math.random() * 50))
   const [randomValueTwo, setRandomValueTwo] = useState(Math.ceil(Math.random() * 10));
-  const [correctResult, setCorrectResult] = useState(randomValueOne + randomValueTwo);
   const [quantity, setQuantity] = useState(10)
-  const [examTime, setExamTime] = useState(5000);
-  const [examNumber, setExamNumber] = useState(10)
-  const [userResult, setUserResult] = useState(0);
+  const [examTime, setExamTime] = useState(2000);
 
   const handleLogin = event => {
     event.preventDefault();
@@ -32,56 +29,34 @@ function App() {
     setIsLoggedIn(true)
   }
 
-  const timerFunc = () => {
-    const newOne = Math.ceil(Math.random() * 50);
-    const newTwo = Math.ceil(Math.random() * 10)
-    setRandomValueOne(newOne)
-    setRandomValueTwo(newTwo)
-    setQuantity(quantity - 1)
-    setCorrectResult(newOne + newTwo);
-    if(quantity <=3){
-      setExamNumber(50);
-      setExamTime(1000)
-    }else if(quantity <=5){
-      setExamNumber(40);
-      setExamTime(2000)
-    }else if(quantity <=7){
-      setExamNumber(30);
-      setExamTime(3000)
-    }else if(quantity <=9){
-      setExamNumber(20);
-      setExamTime(4000)
-    }
-    console.log('quantity inside = ', quantity, examTime, examNumber)
-  }
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (isLoggedIn && !quantity == 0) {
-        timerFunc()
-      }
-    }, examTime)
-
-    return () => clearInterval(interval);
-
+  
+    if(quantity==0){
+      clearInterval()
+      return;
+    }
+    if (isLoggedIn && quantity > 0) {
+      setInterval(() => {
+        setRandomValueOne(Math.ceil(Math.random() * 50))
+        setRandomValueTwo(Math.ceil(Math.random() * 10))
+        setQuantity(quantity - 2)
+      }, examTime)
+    }
   }, [quantity, examTime, isLoggedIn])
-
-  console.log(`${randomValueOne} + ${randomValueTwo} =  ${correctResult}`)
 
   const handleQuestionAnswer = event => {
     event.preventDefault();
     setError('')
+    const correctAnswer = randomValueOne + randomValueTwo
     const answer = event.target.answer.value;
     if (!answer) {
       return setError('please provide the answer')
     }
-    if (correctResult == answer) {
-      setUserResult(userResult + examNumber)
+    if (correctAnswer != answer) {
+      console.log('wrong', answer)
     } else {
-      setUserResult(userResult - 5)
+      console.log('Right', answer)
     }
-    event.target.reset();
-    timerFunc()
   }
 
   return (
@@ -101,7 +76,8 @@ function App() {
             </form>
             :
             <div>
-              You got: {userResult}
+              your result
+
             </div>
       }
       <p style={{ color: 'red' }}>{error}</p>
