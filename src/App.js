@@ -13,6 +13,7 @@ function App() {
   const [examTime, setExamTime] = useState(5000);
   const [examNumber, setExamNumber] = useState(10)
   const [userResult, setUserResult] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(examTime);
 
   const handleLogin = event => {
     event.preventDefault();
@@ -35,6 +36,7 @@ function App() {
   const timerFunc = () => {
     const newOne = Math.ceil(Math.random() * 50);
     const newTwo = Math.ceil(Math.random() * 10)
+
     setRandomValueOne(newOne)
     setRandomValueTwo(newTwo)
     setQuantity(quantity - 1)
@@ -42,29 +44,41 @@ function App() {
     if(quantity <=3){
       setExamNumber(50);
       setExamTime(1000)
+      setRemainingTime(1000)
     }else if(quantity <=5){
       setExamNumber(40);
       setExamTime(2000)
+      setRemainingTime(2000)
     }else if(quantity <=7){
       setExamNumber(30);
       setExamTime(3000)
+      setRemainingTime(3000)
     }else if(quantity <=9){
       setExamNumber(20);
       setExamTime(4000)
+      setRemainingTime(4000)
     }
-    console.log('quantity inside = ', quantity, examTime, examNumber)
+    // console.log('quantity inside = ', quantity, examTime, examNumber)
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (isLoggedIn && !quantity == 0) {
-        timerFunc()
-      }
-    }, examTime)
-
-    return () => clearInterval(interval);
-
+      const interval = setInterval(() => {
+        if (isLoggedIn && !quantity == 0) {
+          timerFunc()
+          setRemainingTime(remainingTime-100)        
+        }
+      }, examTime)
+      return () => clearInterval(interval);
   }, [quantity, examTime, isLoggedIn])
+
+  useEffect(()=>{
+    const remainingInterval = setInterval(()=>{
+      if(isLoggedIn && remainingTime!=0){
+        setRemainingTime(remainingTime-100)
+      }
+    },100)
+   return ()=> clearInterval(remainingInterval);
+  },[remainingTime, isLoggedIn])
 
   console.log(`${randomValueOne} + ${randomValueTwo} =  ${correctResult}`)
 
@@ -98,10 +112,12 @@ function App() {
             <form onSubmit={handleQuestionAnswer}>
               {randomValueOne} + {randomValueTwo} = <input type="number" name='answer' placeholder='please put your answer' />
               <button type="submit" style={{ marginLeft: '8px' }}>Submit</button>
+
+              <div style={{marginTop:'20px'}}>Remaining Time: {parseFloat(remainingTime/1000).toFixed(2)} second</div>
             </form>
             :
             <div>
-              You got: {userResult}
+              You have got: {userResult}
             </div>
       }
       <p style={{ color: 'red' }}>{error}</p>
